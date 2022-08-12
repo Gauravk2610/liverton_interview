@@ -34,13 +34,13 @@ function App() {
   }
   
   useEffect(() => {
-    getData()
+    // getData()
 
   }, [])
   
   return (
     <div className="App">
-      <TestTable />
+      {/* <TestTable /> */}
       <DisplayTable data={data} />
 
       {

@@ -1,112 +1,225 @@
-import React from 'react'
-import { useTable, useSortBy } from 'react-table'
+import React, { useEffect, useState } from "react";
+import { StaticData } from "../staticData";
+import { StarIcon, SwitchVerticalIcon } from "@heroicons/react/outline"
+import { StarIcon as SolidStar } from "@heroicons/react/solid"
+import { useSelector, useDispatch } from 'react-redux'
+import { addToFavourite, removeFromFavourite } from '../features/favourite/favouriteSlice'
 
-function Table({ columns, data }) {
-    const {
-      getTableProps,
-      getTableBodyProps,
-      headerGroups,
-      rows,
-      prepareRow,
-    } = useTable(
-      {
-        columns,
-        data,
-      },
-      useSortBy
-    )
-  
-    // We don't want to render all 2000 rows for this example, so cap
-    // it at 20 for this use case
-    const firstPageRows = rows.slice(0, 20)
-  
-    return (
-      <>
-        <table {...getTableProps()}>
-          <thead>
-            {headerGroups.map(headerGroup => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  // Add the sorting props to control sorting. For this example
-                  // we can add them into the header props
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render('Header')}
-                    {/* Add a sort direction indicator */}
-                    <span>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? ' 🔽'
-                          : ' 🔼'
-                        : ''}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map(
-              (row, i) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()}>
-                    {row.cells.map(cell => {
-                      return (
-                        <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                      )
-                    })}
-                  </tr>
-                )}
-            )}
-          </tbody>
-        </table>
-      </>
-    )
-  }
-  
+const DisplayTable = () => {
 
-const DisplayTable = ({data}) => {
-    const columns = React.useMemo(
-        () => [
-          {
-            Header: 'Symbol',
-            accessor: 'symbol',
-          },
-          {
-            Header: 'USDT Price',
-            accessor: 'price',
-          },
+  // Redux store
+  const favourite = useSelector((state) => state.favourite.value)
+  const dispatch = useDispatch()
+  
+  // data useState is used to store the data from the api 
+  const [data, setData] = useState([]);
+  // sortItem useState is used to store the sort item from the api
+  const [sortItem, setSortItem] = useState('price');
+  // sort useState is used to decide the sort order
+  const [sort, setSort] = useState('desc');
 
-        //   {
-        //     Header: 'Info',
-        //     columns: [
-        //       {
-        //         Header: 'Age',
-        //         accessor: 'age',
-        //       },
-        //       {
-        //         Header: 'Visits',
-        //         accessor: 'visits',
-        //       },
-        //       {
-        //         Header: 'Status',
-        //         accessor: 'status',
-        //       },
-        //       {
-        //         Header: 'Profile Progress',
-        //         accessor: 'progress',
-        //       },
-        //     ],
-        //   },
-        ],
-        []
-      )
-    
+  useEffect(() => {
+    // getData();
+    // setInterval(() => {
+    const data = StaticData;
+    const filteredData = data.filter(
+      (item) => item.exchange_id === "BINANCE" && item.quote_asset === "USDT"
+    );
+
+    // switch the sort order
+    switch (sortItem) {
+      case 'symbol':
+        filteredData.sort(function (a, b) {
+          if (sort === "asc") {
+            return a.symbol.localeCompare(b.symbol);
+          } else {
+            return b.symbol.localeCompare(a.symbol);
+          }
+        }
+        );
+        break;
+        
+        case 'price':
+          filteredData.sort(function (a, b) {
+            if (sort === "asc") {
+              return a.price - b.price;
+            } else {
+              return b.price - a.price;
+            }
+          });
+          break
+        
+        case 'change24h':
+          filteredData.sort(function (a, b) {
+            if (sort === "asc") {
+              return a.change_24h - b.change_24h;
+            } else {
+              return b.change_24h - a.change_24h;
+            }
+          });
+          break
+        
+        case 'volume24h':
+          filteredData.sort(function (a, b) {
+            if (sort === "asc") {
+              return a.volume_24h - b.volume_24h;
+            } else {
+              return b.volume_24h - a.volume_24h;
+            }
+          });
+          break
+
+      default:
+        break;
+    }
+
+    // filteredData.sort((a, b) => a.symbol.localeCompare(b.symbol));
+    setData(filteredData);
+    // // }, 5000);
+  }, [sortItem, sort]);
+
   return (
-    <div>
-        <Table columns={columns} data={data} />
-    </div>
-  )
-}
+    <div className="my-6">
+      <table className="mx-auto">
+        <thead>
+          <tr>
+            <th scope="col" className="text-xl border-[1.4px] font-normal py-2 px-4 rounded-tl-lg">
+              Sr No.
+            </th>
+            <th 
+            onClick={() => {
+              setSortItem('symbol');
+              if (sort === 'asc') {
+                setSort('desc')
+              } else { 
+                setSort('asc') 
+              }
+            } }
+            scope="col" 
+            className="text-xl border-[1.4px] font-normal py-2 px-4">
+              <div className="items-center flex space-x-4 ">
+                <span>Symbol</span>
+                <SwitchVerticalIcon  
+                className="w-5 h-5 cursor-pointer" />
+              </div>
+            </th>
+            <th 
+            onClick={() => {
+              setSortItem('price');
+              if (sort === 'asc') {
+                setSort('desc')
+              } else { 
+                setSort('asc') 
+              }
+            } }
+            scope="col" 
+            className="text-xl border-[1.4px] font-normal py-2 px-4">
+              <div className="items-center flex space-x-4 ">
+                <span>Price</span>
+                <SwitchVerticalIcon  
+                className="w-5 h-5 cursor-pointer" />
+              </div>
+            </th>
+            <th 
+            onClick={() => {
+              setSortItem('change24h');
+              if (sort === 'asc') {
+                setSort('desc')
+              } else { 
+                setSort('asc') 
+              }
+            } }
+            scope="col" 
+            className="text-xl border-[1.4px] font-normal py-2 px-4">
+              <div className="items-center flex space-x-4 ">
+                <span>Change 24h</span>
+                <SwitchVerticalIcon  
+                className="w-5 h-5 cursor-pointer" />
+              </div>
+            </th>
+            <th 
+            onClick={() => {
+              setSortItem('volume24h');
+              if (sort === 'asc') {
+                setSort('desc')
+              } else { 
+                setSort('asc') 
+              }
+            } }
+            scope="col" className="text-xl border-[1.4px] font-normal py-2 px-4">
+              <div className="items-center flex space-x-4 ">
+                <span>Volume 24h</span>
+                <SwitchVerticalIcon  
+                className="w-5 h-5 cursor-pointer" />
+              </div>
+            </th>
+            <th scope="col" className="text-xl border-[1.4px] font-normal py-2 px-4 rounded-tr-lg">
+              Exchange ID
+            </th>
+          </tr>
+        </thead>
+        <tbody>
 
-export default DisplayTable
+          {
+            data?.filter((item) => favourite.includes(item.symbol) ? item.symbol : null)?.map((item, index) => (
+            <tr>
+              <td className="border-[1.4px] font-normal py-2 px-4">{index+1}.</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">
+                <div className="flex items-center justify-between">
+                  <span>{item?.symbol}</span>
+                  {
+                    favourite.includes(item?.symbol) ? (
+                      <SolidStar 
+                      onClick={() => dispatch(removeFromFavourite(item?.symbol))}
+                      className="w-5 h-5 cursor-pointer text-yellow-400" />
+                    ):(
+
+                      <StarIcon 
+                      onClick={() => dispatch(addToFavourite(item?.symbol))}
+                      className="w-5 h-5 cursor-pointer text-yellow-400" />
+                    )
+                  }
+                </div>
+              </td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.price}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.change_24h}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.volume_24h}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.exchange_id}</td>
+            </tr>
+            ))
+          }
+          {
+            data?.filter((item) => !favourite.includes(item.symbol) ? item.symbol : null)?.map((item, index) => (
+            <tr>
+              <td className="border-[1.4px] font-normal py-2 px-4">{index+1+favourite.length}.</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">
+                <div className="flex items-center justify-between">
+                  <span>{item?.symbol}</span>
+                  {
+                    favourite.includes(item?.symbol) ? (
+                      <SolidStar 
+                      onClick={() => dispatch(removeFromFavourite(item?.symbol))}
+                      className="w-5 h-5 cursor-pointer text-yellow-400" />
+                    ):(
+
+                      <StarIcon 
+                      onClick={() => dispatch(addToFavourite(item?.symbol))}
+                      className="w-5 h-5 cursor-pointer text-yellow-400" />
+                    )
+                  }
+                </div>
+              </td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.price}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.change_24h}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.volume_24h}</td>
+              <td className="border-[1.4px] font-normal py-2 px-4">{item?.exchange_id}</td>
+            </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default DisplayTable;
