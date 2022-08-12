@@ -79,7 +79,7 @@ const DisplayTable = () => {
   }, [sortItem, sort]);
 
   return (
-    <div className="my-6 mx-8">
+    <div className="my-6 mx-8 overflow-x-scroll">
       <table className="mx-auto">
         <thead>
           <tr>
