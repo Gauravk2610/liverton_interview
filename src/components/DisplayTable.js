@@ -79,7 +79,7 @@ const DisplayTable = () => {
   }, [sortItem, sort]);
 
   return (
-    <div className="my-6">
+    <div className="my-6 mx-8">
       <table className="mx-auto">
         <thead>
           <tr>
