@@ -6,6 +6,7 @@ import axios from 'axios';
 import { StaticData } from './staticData';
 import DisplayTable from './components/DisplayTable';
 import TestTable from './components/TestTable';
+import Header from './components/Header';
 // 
 function App() {
 
@@ -41,6 +42,8 @@ function App() {
   return (
     <div className="App">
       {/* <TestTable /> */}
+      <Header />
+      <h1 className='text-3xl text-center pb-6'>Cryptocurrencies Data</h1>
       <DisplayTable data={data} />
 
       {
