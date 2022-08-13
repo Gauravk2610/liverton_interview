@@ -191,7 +191,7 @@ const DisplayTable = () => {
 
           {
             data?.filter((item) => favourite.includes(item.symbol) ? item.symbol : null)
-            ?.filter((item) => console.log(item.symbol.split(search)))
+            ?.filter((item) => item.symbol.toLowerCase().slice(0, search.length) === search.toLowerCase())
             ?.map((item, index) => (
             <tr>
               <td className="border-[1.4px] font-normal py-2 px-4">{index+1}.</td>
