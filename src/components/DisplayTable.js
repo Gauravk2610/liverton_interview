@@ -18,9 +18,11 @@ const DisplayTable = () => {
   const [sortItem, setSortItem] = useState('price');
   // sort useState is used to decide the sort order
   const [sort, setSort] = useState('desc');
-  
+  // filter useState is used to store the filter bad coins from the api
   const [filterBad, setFilterBad] = useState(false);
-
+  // search useState is used to store the search item from the api
+  const [search, setSearch] = useState('');
+  
   useEffect(() => {
     // getData();
     // setInterval(() => {
@@ -29,6 +31,7 @@ const DisplayTable = () => {
       (item) => item.exchange_id === "BINANCE" && item.quote_asset === "USDT"
     );
 
+    // if filterBad is true then filter the bad coins
     if (filterBad) {
       filteredData = filteredData.filter(
         (item) => item.price > 0.5
@@ -37,6 +40,7 @@ const DisplayTable = () => {
 
     // switch the sort order
     switch (sortItem) {
+      // sort by symbol
       case 'symbol':
         filteredData.sort(function (a, b) {
           if (sort === "asc") {
@@ -48,6 +52,7 @@ const DisplayTable = () => {
         );
         break;
         
+      // sort by price
         case 'price':
           filteredData.sort(function (a, b) {
             if (sort === "asc") {
@@ -58,6 +63,7 @@ const DisplayTable = () => {
           });
           break
         
+      // sort by change24h
         case 'change24h':
           filteredData.sort(function (a, b) {
             if (sort === "asc") {
@@ -68,6 +74,7 @@ const DisplayTable = () => {
           });
           break
         
+        // sort by volume24h
         case 'volume24h':
           filteredData.sort(function (a, b) {
             if (sort === "asc") {
@@ -96,6 +103,11 @@ const DisplayTable = () => {
         onToggle={() => {
           setFilterBad(!filterBad)
         }} />
+        <input 
+        className="bg-inherit max-w-lg w-full px-4 py-1 rounded-lg border-2 border-gray-500 focus:outline-none focus:shadow-outline"
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search..."
+        type="text" />
       </div>
       <table className="mx-auto">
         <thead>
@@ -178,7 +190,9 @@ const DisplayTable = () => {
         <tbody>
 
           {
-            data?.filter((item) => favourite.includes(item.symbol) ? item.symbol : null)?.map((item, index) => (
+            data?.filter((item) => favourite.includes(item.symbol) ? item.symbol : null)
+            ?.filter((item) => console.log(item.symbol.split(search)))
+            ?.map((item, index) => (
             <tr>
               <td className="border-[1.4px] font-normal py-2 px-4">{index+1}.</td>
               <td className="border-[1.4px] font-normal py-2 px-4">
@@ -206,7 +220,9 @@ const DisplayTable = () => {
             ))
           }
           {
-            data?.filter((item) => !favourite.includes(item.symbol) ? item.symbol : null)?.map((item, index) => (
+            data?.filter((item) => !favourite.includes(item.symbol) ? item.symbol : null)
+            .filter((item) => item.symbol.toLowerCase().slice(0, search.length) === search.toLowerCase())
+            ?.map((item, index) => (
             <tr>
               <td className="border-[1.4px] font-normal py-2 px-4">{index+1+favourite.length}.</td>
               <td className="border-[1.4px] font-normal py-2 px-4">
