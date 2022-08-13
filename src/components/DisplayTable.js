@@ -4,6 +4,7 @@ import { StarIcon, SwitchVerticalIcon } from "@heroicons/react/outline"
 import { StarIcon as SolidStar } from "@heroicons/react/solid"
 import { useSelector, useDispatch } from 'react-redux'
 import { addToFavourite, removeFromFavourite } from '../features/favourite/favouriteSlice'
+import ToggleButton from 'react-toggle-button'
 
 const DisplayTable = () => {
 
@@ -17,14 +18,22 @@ const DisplayTable = () => {
   const [sortItem, setSortItem] = useState('price');
   // sort useState is used to decide the sort order
   const [sort, setSort] = useState('desc');
+  
+  const [filterBad, setFilterBad] = useState(false);
 
   useEffect(() => {
     // getData();
     // setInterval(() => {
     const data = StaticData;
-    const filteredData = data.filter(
+    var filteredData = data.filter(
       (item) => item.exchange_id === "BINANCE" && item.quote_asset === "USDT"
     );
+
+    if (filterBad) {
+      filteredData = filteredData.filter(
+        (item) => item.price > 0.5
+      );
+    }
 
     // switch the sort order
     switch (sortItem) {
@@ -76,10 +85,18 @@ const DisplayTable = () => {
     // filteredData.sort((a, b) => a.symbol.localeCompare(b.symbol));
     setData(filteredData);
     // // }, 5000);
-  }, [sortItem, sort]);
+  }, [sortItem, sort, filterBad]);
 
   return (
     <div className="my-6 mx-8 overflow-x-scroll">
+      <div className="max-w-5xl mx-auto mb-6 space-x-2 flex items-center">
+        <label htmlFor="BadFilter">BadFilter</label>
+        <ToggleButton
+        value={filterBad}
+        onToggle={() => {
+          setFilterBad(!filterBad)
+        }} />
+      </div>
       <table className="mx-auto">
         <thead>
           <tr>
